@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabalux S.A.S - Consultant Portal</title>
+    <script src="auth.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Viewdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .nav-menu {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        .nav-menu a:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-menu a.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-left h1 {
+            color: #333;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .header-left p {
+            color: #666;
+            font-size: 1em;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .user-details h3 {
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 3px;
+        }
+
+        .user-details p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .stat-card.assigned .stat-value { color: #3b82f6; }
+        .stat-card.progress .stat-value { color: #f59e0b; }
+        .stat-card.completed .stat-value { color: #10b981; }
+        .stat-card.overdue .stat-value { color: #ef4444; }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .tickets-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .section-header h2 {
+            color: #333;
+            font-size: 1.5em;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .filter-tab:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .filter-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .ticket-card {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .ticket-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateX(5px);
+        }
+
+        .ticket-card.critical {
+            border-left-color: #ef4444;
+        }
+
+        .ticket-card.high {
+            border-left-color: #f59e0b;
+        }
+
+        .ticket-card.medium {
+            border-left-color: #3b82f6;
+        }
+
+        .ticket-card.low {
+            border-left-color: #10b981;
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .ticket-id {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .ticket-priority {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .priority-critical {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .priority-high {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .priority-medium {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .priority-low {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .ticket-title {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .ticket-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .ticket-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .ticket-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .quick-actions {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .quick-actions h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1em;
+        }
+
+        .action-btn.new-ticket {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .action-btn.new-ticket:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-btn.request-help {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .action-btn.request-help:hover {
+            background: #d97706;
+        }
+
+        .action-btn.knowledge-base {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .action-btn.knowledge-base:hover {
+            background: #2563eb;
+        }
+
+        .tips-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .tips-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .tip-item {
+            padding: 12px;
+            background: #f0fdf4;
+            border-left: 4px solid #10b981;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: #065f46;
+        }
+
+        .performance-widget {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .performance-widget h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .performance-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .performance-metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .metric-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .metric-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            font-size: 1.5em;
+        }
+
+        .close-modal {
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+            background: none;
+            border: none;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-menu a {
+                width: 100%;
+                text-align: center;
+            }
+
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-menu">
+        <span style="font-weight: bold; color: #667eea;">📊 Dashboard Navigation:</span>
+        <a href="index.html">🏠 Home</a>
+        <a href="operational-view.html">Operational View</a>
+        <a href="executive-view.html">Executive View</a>
+        <a href="predictive-analytics.html">Predictive Analytics</a>
+        <a href="consultant-portal.html" class="active">Consultant Portal</a>
+        <a href="#" onclick="logout()" style="margin-left: auto; background: #ef4444; color: white;">🚪 Logout</a>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>👨‍💻 Tabalux S.A.S - Consultant Portal</h1>
+                <p>Gestiona tus tickets eficientemente</p>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">JO</div>
+                <div class="user-details">
+                    <h3>Maria Garcia</h3>
+                    <p>Senior Consultant • Team Alpha</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="stat-card assigned">
+                <div class="stat-icon">📋</div>
+                <div class="stat-value">8</div>
+                <div class="stat-label">Assigned to Me</div>
+            </div>
+            <div class="stat-card progress">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-value">3</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-card completed">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value">24</div>
+                <div class="stat-label">Completed This Month</div>
+            </div>
+            <div class="stat-card overdue">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-value">2</div>
+                <div class="stat-label">Needs Attention</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="tickets-section">
+                <div class="section-header">
+                    <h2>My Tickets</h2>
+                    <span style="color: #666;">8 active tickets</span>
+                </div>
+
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterTickets('all')">All (8)</button>
+                    <button class="filter-tab" onclick="filterTickets('critical')">Critical (2)</button>
+                    <button class="filter-tab" onclick="filterTickets('high')">High (3)</button>
+                    <button class="filter-tab" onclick="filterTickets('medium')">Medium (2)</button>
+                    <button class="filter-tab" onclick="filterTickets('low')">Low (1)</button>
+                </div>
+
+                <div class="search-box">
+                    <input type="text" placeholder="🔍 Search tickets by ID, title, or module..." id="searchInput" onkeyup="searchTickets()">
+                </div>
+
+                <div id="ticketsList">
+                    <!-- Ticket Cards -->
+                    <div class="ticket-card critical" data-priority="critical">
+                        <div class="ticket-header">
+                            <span class="ticket-id">DEF2026001</span>
+                            <span class="ticket-priority priority-critical">CRITICAL</span>
+                        </div>
+                        <div class="ticket-title">E-commerce Login Authentication Failure</div>
+                        <div class="ticket-meta">
+                            <span>📂 E-commerce Login</span>
+                            <span>⏱️ 12 days old</span>
+                            <span>🏷️ Technology</span>
+                        </div>
+                        <p style="color: #666; font-size: 0.9em; margin-bottom: 10px;">Users unable to authenticate via OAuth. Affecting 500+ users daily.</p>
+                        <div class="ticket-actions">
+                            <button class="btn btn-primary" onclick="openTicketDetails('DEF2026001')">View Details</button>
+                            <button class="btn btn-success" onclick="requestSolution('DEF2026001')">Request Solution</button>
+                            <button class="btn btn-secondary" onclick="updateStatus('DEF2026001')">Update Status</button>
+                        </div>
+                    </div>
+
+                    <div class="ticket-card high" data-priority="high">
+                        <div class="ticket-header">
+                            <span class="ticket-id">DEF2026003</span>
+                            <span class="ticket-priority priority-high">HIGH</span>
+                        </div>
+                        <div class="ticket-title">Payment Gateway Timeout Issues</div>
+                        <div class="ticket-meta">
+                            <span>📂 Payment Gateway</span>
+                            <span>⏱️ 15 days old</span>
+                            <span>🏷️ Technology</span>
+                        </div>
+                        <p style="color: #666; font-size: 0.9em; margin-bottom: 10px;">Payment processing timing out after 30 seconds. Customer complaints increasing.</p>
+                        <div class="ticket-actions">
+                            <button class="btn btn-primary" onclick="openTicketDetails('DEF2026003')">View Details</button>
+                            <button class="btn btn-success" onclick="requestSolution('DEF2026003')">Request Solution</button>
+                            <button class="btn btn-secondary" onclick="updateStatus('DEF2026003')">Update Status</button>
+                        </div>
+                    </div>
+
+                    <div class="ticket-card high" data-priority="high">
+                        <div class="ticket-header">
+                            <span class="ticket-id">DEF2026007</span>
+                            <span class="ticket-priority priority-high">HIGH</span>
+                        </div>
+                        <div class="ticket-title">CRM Customer Data Sync Failure</div>
+                        <div class="ticket-meta">
+                            <span>📂 Customer CRM</span>
+                            <span>⏱️ 10 days old</span>
+                            <span>🏷️ Customer Service</span>
+                        </div>
+                        <p style="color: #666; font-size: 0.9em; margin-bottom: 10px;">Customer data not syncing between systems. Sales team impacted.</p>
+                        <div class="ticket-actions">
+                            <button class="btn btn-primary" onclick="openTicketDetails('DEF2026007')">View Details</button>
+                            <button class="btn btn-success" onclick="requestSolution('DEF2026007')">Request Solution</button>
+                            <button class="btn btn-secondary" onclick="updateStatus('DEF2026007')">Update Status</button>
+                        </div>
+                    </div>
+
+                    <div class="ticket-card medium" data-priority="medium">
+                        <div class="ticket-header">
+                            <span class="ticket-id">HAL2026015</span>
+                            <span class="ticket-priority priority-medium">MEDIUM</span>
+                        </div>
+                        <div class="ticket-title">Dashboard Performance Optimization</div>
+                        <div class="ticket-meta">
+                            <span>📂 BI Dashboard</span>
+                            <span>⏱️ 6 days old</span>
+                            <span>🏷️ BI & Analytics</span>
+                        </div>
+                        <p style="color: #666; font-size: 0.9em; margin-bottom: 10px;">Dashboard loading slowly with large datasets. Need optimization.</p>
+                        <div class="ticket-actions">
+                            <button class="btn btn-primary" onclick="openTicketDetails('HAL2026015')">View Details</button>
+                            <button class="btn btn-success" onclick="requestSolution('HAL2026015')">Request Solution</button>
+                            <button class="btn btn-secondary" onclick="updateStatus('HAL2026015')">Update Status</button>
+                        </div>
+                    </div>
+
+                    <div class="ticket-card medium" data-priority="medium">
+                        <div class="ticket-header">
+                            <span class="ticket-id">DEF2026011</span>
+                            <span class="ticket-priority priority-medium">MEDIUM</span>
+                        </div>
+                        <div class="ticket-title">Supplier Portal Access Issues</div>
+                        <div class="ticket-meta">
+                            <span>📂 Supplier Portal</span>
+                            <span>⏱️ 4 days old</span>
+                            <span>🏷️ Sales</span>
+                        </div>
+                        <p style="color: #666; font-size: 0.9em; margin-bottom: 10px;">Some suppliers reporting intermittent access issues to portal.</p>
+                        <div class="ticket-actions">
+                            <button class="btn btn-primary" onclick="openTicketDetails('DEF2026011')">View Details</button>
+                            <button class="btn btn-success" onclick="requestSolution('DEF2026011')">Request Solution</button>
+                            <button class="btn btn-secondary" onclick="updateStatus('DEF2026011')">Update Status</button>
+                        </div>
+                    </div>
+
+                    <div class="ticket-card low" data-priority="low">
+                        <div class="ticket-header">
+                            <span class="ticket-id">HAL2026018</span>
+                            <span class="ticket-priority priority-low">LOW</span>
+                        </div>
+                        <div class="ticket-title">UI Enhancement Request - Color Scheme</div>
+                        <div class="ticket-meta">
+                            <span>📂 User Interface</span>
+                            <span>⏱️ 3 days old</span>
+                            <span>🏷️ Technology</span>
+                        </div>
+                        <p style="color: #666; font-size: 0.9em; margin-bottom: 10px;">User feedback requesting dark mode option for better accessibility.</p>
+                        <div class="ticket-actions">
+                            <button class="btn btn-primary" onclick="openTicketDetails('HAL2026018')">View Details</button>
+                            <button class="btn btn-success" onclick="requestSolution('HAL2026018')">Request Solution</button>
+                            <button class="btn btn-secondary" onclick="updateStatus('HAL2026018')">Update Status</button>
+                        </div>
+                    </div>
+
+                    <div class="ticket-card high" data-priority="high">
+                        <div class="ticket-header">
+                            <span class="ticket-id">DEF2026020</span>
+                            <span class="ticket-priority priority-high">HIGH</span>
+                        </div>
+                        <div class="ticket-title">API Rate Limiting Issues</div>
+                        <div class="ticket-meta">
+                            <span>📂 API Gateway</span>
+                            <span>⏱️ 8 days old</span>
+                            <span>🏷️ Infrastructure</span>
+                        </div>
+                        <p style="color: #666; font-size: 0.9em; margin-bottom: 10px;">Third-party integrations hitting rate limits. Need to optimize API calls.</p>
+                        <div class="ticket-actions">
+                            <button class="btn btn-primary" onclick="openTicketDetails('DEF2026020')">View Details</button>
+                            <button class="btn btn-success" onclick="requestSolution('DEF2026020')">Request Solution</button>
+                            <button class="btn btn-secondary" onclick="updateStatus('DEF2026020')">Update Status</button>
+                        </div>
+                    </div>
+
+                    <div class="ticket-card critical" data-priority="critical">
+                        <div class="ticket-header">
+                            <span class="ticket-id">DEF2026021</span>
+                            <span class="ticket-priority priority-critical">CRITICAL</span>
+                        </div>
+                        <div class="ticket-title">Database Connection Pool Exhaustion</div>
+                        <div class="ticket-meta">
+                            <span>📂 Database</span>
+                            <span>⏱️ 2 days old</span>
+                            <span>🏷️ Infrastructure</span>
+                        </div>
+                        <p style="color: #666; font-size: 0.9em; margin-bottom: 10px;">Production database connections being exhausted during peak hours.</p>
+                        <div class="ticket-actions">
+                            <button class="btn btn-primary" onclick="openTicketDetails('DEF2026021')">View Details</button>
+                            <button class="btn btn-success" onclick="requestSolution('DEF2026021')">Request Solution</button>
+                            <button class="btn btn-secondary" onclick="updateStatus('DEF2026021')">Update Status</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="quick-actions">
+                    <h3>⚡ Quick Actions</h3>
+                    <button class="action-btn new-ticket" onclick="openNewTicketModal()">
+                        <span>➕</span>
+                        <span>Create New Ticket</span>
+                    </button>
+                    <button class="action-btn request-help" onclick="openHelpModal()">
+                        <span>🆘</span>
+                        <span>Request Help</span>
+                    </button>
+                    <button class="action-btn knowledge-base" onclick="openKnowledgeBase()">
+                        <span>📚</span>
+                        <span>Knowledge Base</span>
+                    </button>
+                </div>
+
+                <div class="performance-widget">
+                    <h3>📊 My Performance</h3>
+                    <div class="performance-metric">
+                        <span class="metric-label">Resolution Rate</span>
+                        <span class="metric-value">92%</span>
+                    </div>
+                    <div class="metric-bar">
+                        <div class="metric-fill" style="width: 92%"></div>
+                    </div>
+
+                    <div class="performance-metric" style="margin-top: 15px;">
+                        <span class="metric-label">Avg. Response Time</span>
+                        <span class="metric-value">2.3 hrs</span>
+                    </div>
+                    <div class="metric-bar">
+                        <div class="metric-fill" style="width: 85%"></div>
+                    </div>
+
+                    <div class="performance-metric" style="margin-top: 15px;">
+                        <span class="metric-label">Customer Satisfaction</span>
+                        <span class="metric-value">4.7/5</span>
+                    </div>
+                    <div class="metric-bar">
+                        <div class="metric-fill" style="width: 94%"></div>
+                    </div>
+
+                    <div class="performance-metric" style="margin-top: 15px;">
+                        <span class="metric-label">SLA Compliance</span>
+                        <span class="metric-value">96%</span>
+                    </div>
+                    <div class="metric-bar">
+                        <div class="metric-fill" style="width: 96%"></div>
+                    </div>
+                </div>
+
+                <div class="tips-section">
+                    <h3>💡 Productivity Tips</h3>
+                    <div class="tip-item">
+                        <strong>Tip:</strong> Use keyboard shortcuts to navigate faster through tickets.
+                    </div>
+                    <div class="tip-item">
+                        <strong>Tip:</strong> Update ticket status regularly to keep stakeholders informed.
+                    </div>
+                    <div class="tip-item">
+                        <strong>Tip:</strong> Check the knowledge base before requesting help - you might find the solution faster!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Solution Modal -->
+    <div id="solutionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🆘 Request Solution</h2>
+                <button class="close-modal" onclick="closeSolutionModal()">×</button>
+            </div>
+            <form onsubmit="submitSolutionRequest(event)">
+                <div class="form-group">
+                    <label>Ticket ID</label>
+                    <input type="text" id="solutionTicketId" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Request Type</label>
+                    <select required>
+                        <option value="">Select type...</option>
+                        <option value="technical">Technical Assistance</option>
+                        <option value="escalation">Escalate to Senior</option>
+                        <option value="resources">Additional Resources</option>
+                        <option value="clarification">Clarification Needed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select required>
+                        <option value="">Select priority...</option>
+                        <option value="urgent">Urgent - Need immediate help</option>
+                        <option value="high">High - Need help today</option>
+                        <option value="normal">Normal - Can wait 24 hours</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea placeholder="Describe what you need help with..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>What have you tried so far?</label>
+                    <textarea placeholder="List the troubleshooting steps you've already taken..." required></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeSolutionModal()">Cancel</button>
+                    <button type="submit" class="btn btn-success">Submit Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Ticket Modal -->
+    <div id="newTicketModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>➕ Create New Ticket</h2>
+                <button class="close-modal" onclick="closeNewTicketModal()">×</button>
+            </div>
+            <form onsubmit="submitNewTicket(event)">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" placeholder="Brief description of the issue" required>
+                </div>
+                <div class="form-group">
+                    <label>Module/System</label>
+                    <select required>
+                        <option value="">Select module...</option>
+                        <option value="ecommerce">E-commerce</option>
+                        <option value="crm">CRM</option>
+                        <option value="erp">ERP</option>
+                        <option value="bi">BI & Analytics</option>
+                        <option value="api">API Gateway</option>
+                        <option value="database">Database</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select required>
+                        <option value="">Select category...</option>
+                        <option value="defect">Defect</option>
+                        <option value="finding">Finding</option>
+                        <option value="enhancement">Enhancement</option>
+                        <option value="question">Question</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select required>
+                        <option value="">Select priority...</option>
+                        <option value="critical">Critical - System down</option>
+                        <option value="high">High - Major impact</option>
+                        <option value="medium">Medium - Moderate impact</option>
+                        <option value="low">Low - Minor issue</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Detailed Description</label>
+                    <textarea placeholder="Provide detailed information about the issue..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Steps to Reproduce (if applicable)</label>
+                    <textarea placeholder="1. Go to...&#10;2. Click on...&#10;3. Observe..."></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeNewTicketModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Ticket</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Load tickets from localStorage on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTicketsFromStorage();
+        });
+
+        function loadTicketsFromStorage() {
+            var ticketsData = localStorage.getItem('tabaluxTickets');
+            if (!ticketsData) return;
+            
+            var tickets = JSON.parse(ticketsData);
+            var ticketsList = document.getElementById('ticketsList');
+            
+            if (!ticketsList) return;
+            
+            // Clear existing tickets
+            ticketsList.innerHTML = '';
+            
+            // Render tickets from localStorage
+            tickets.forEach(function(ticket) {
+                var priorityClass = getPriorityClass(ticket.status);
+                var priorityLabel = getPriorityLabel(ticket.status);
+                var statusText = getStatusText(ticket.status);
+                var daysOld = getDaysOld(ticket.fecha);
+                
+                var ticketCard = document.createElement('div');
+                ticketCard.className = 'ticket-card ' + priorityClass;
+                ticketCard.setAttribute('data-priority', priorityClass);
+                
+                ticketCard.innerHTML = `
+                    <div class="ticket-header">
+                        <span class="ticket-id">Ticket #${ticket.id}</span>
+                        <span class="ticket-priority priority-${priorityClass}">${priorityLabel}</span>
+                    </div>
+                    <div class="ticket-title">${ticket.title}</div>
+                    <div class="ticket-meta">
+                        <span>👤 ${ticket.cliente}</span>
+                        <span>⏱️ ${daysOld} days old</span>
+                        <span>🏷️ ${statusText}</span>
+                    </div>
+                    <p style="color: #666; font-size: 0.9em; margin-bottom: 10px;">${ticket.description}</p>
+                    <div class="ticket-actions">
+                        <button class="btn btn-primary" onclick="openTicketDetails('${ticket.id}')">View Details</button>
+                        <button class="btn btn-success" onclick="requestSolution('${ticket.id}')">Request Solution</button>
+                        <button class="btn btn-secondary" onclick="updateStatus('${ticket.id}')">Update Status</button>
+                    </div>
+                `;
+                
+                ticketsList.appendChild(ticketCard);
+            });
+            
+            // Update ticket count
+            updateTicketCounts(tickets);
+        }
+        
+        function getPriorityClass(status) {
+            if (status === 'open') return 'critical';
+            if (status === 'in-progress') return 'high';
+            if (status === 'dependency') return 'medium';
+            if (status === 'closed') return 'low';
+            return 'medium';
+        }
+        
+        function getPriorityLabel(status) {
+            if (status === 'open') return 'CRITICAL';
+            if (status === 'in-progress') return 'HIGH';
+            if (status === 'dependency') return 'MEDIUM';
+            if (status === 'closed') return 'LOW';
+            return 'MEDIUM';
+        }
+        
+        function getStatusText(status) {
+            var statusMap = {
+                'open': 'Open',
+                'in-progress': 'In Progress',
+                'dependency': 'With Dependency',
+                'closed': 'Closed'
+            };
+            return statusMap[status] || status;
+        }
+        
+        function getDaysOld(fecha) {
+            var ticketDate = new Date(fecha);
+            var today = new Date();
+            var diffTime = Math.abs(today - ticketDate);
+            var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+        
+        function updateTicketCounts(tickets) {
+            var counts = {
+                all: tickets.length,
+                critical: tickets.filter(function(t) { return t.status === 'open'; }).length,
+                high: tickets.filter(function(t) { return t.status === 'in-progress'; }).length,
+                medium: tickets.filter(function(t) { return t.status === 'dependency'; }).length,
+                low: tickets.filter(function(t) { return t.status === 'closed'; }).length
+            };
+            
+            // Update filter tab counts
+            var tabs = document.querySelectorAll('.filter-tab');
+            if (tabs[0]) tabs[0].textContent = 'All (' + counts.all + ')';
+            if (tabs[1]) tabs[1].textContent = 'Critical (' + counts.critical + ')';
+            if (tabs[2]) tabs[2].textContent = 'High (' + counts.high + ')';
+            if (tabs[3]) tabs[3].textContent = 'Medium (' + counts.medium + ')';
+            if (tabs[4]) tabs[4].textContent = 'Low (' + counts.low + ')';
+        }
+
+        function filterTickets(priority) {
+            const tickets = document.querySelectorAll('.ticket-card');
+            const tabs = document.querySelectorAll('.filter-tab');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            tickets.forEach(ticket => {
+                if (priority === 'all') {
+                    ticket.style.display = 'block';
+                } else {
+                    if (ticket.dataset.priority === priority) {
+                        ticket.style.display = 'block';
+                    } else {
+                        ticket.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        function searchTickets() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const tickets = document.querySelectorAll('.ticket-card');
+            
+            tickets.forEach(ticket => {
+                const text = ticket.textContent.toLowerCase();
+                if (text.includes(input)) {
+                    ticket.style.display = 'block';
+                } else {
+                    ticket.style.display = 'none';
+                }
+            });
+        }
+
+        function openTicketDetails(ticketId) {
+            alert(`Opening detailed view for ticket: ${ticketId}\n\nThis would show:\n- Full ticket history\n- All comments and updates\n- Attached files\n- Related tickets\n- Timeline of actions`);
+        }
+
+        function requestSolution(ticketId) {
+            document.getElementById('solutionTicketId').value = ticketId;
+            document.getElementById('solutionModal').classList.add('active');
+        }
+
+        function closeSolutionModal() {
+            document.getElementById('solutionModal').classList.remove('active');
+        }
+
+        function submitSolutionRequest(event) {
+            event.preventDefault();
+            alert('✅ Solution request submitted successfully!\n\nYou will receive a response within 2 hours.\nA notification will be sent to your email.');
+            closeSolutionModal();
+        }
+
+        function updateStatus(ticketId) {
+            const status = prompt(`Update status for ${ticketId}:\n\n1. In Progress\n2. Waiting for Info\n3. Testing\n4. Resolved\n\nEnter number (1-4):`);
+            
+            if (status) {
+                const statuses = ['In Progress', 'Waiting for Info', 'Testing', 'Resolved'];
+                alert(`✅ Status updated to: ${statuses[parseInt(status) - 1]}`);
+            }
+        }
+
+        function openNewTicketModal() {
+            document.getElementById('newTicketModal').classList.add('active');
+        }
+
+        function closeNewTicketModal() {
+            document.getElementById('newTicketModal').classList.remove('active');
+        }
+
+        function submitNewTicket(event) {
+            event.preventDefault();
+            alert('✅ New ticket created successfully!\n\nTicket ID: DEF2026022\nYou will receive a confirmation email shortly.');
+            closeNewTicketModal();
+        }
+
+        function openHelpModal() {
+            alert('🆘 Help Request\n\nThis would open a form to:\n- Request immediate assistance\n- Schedule a call with senior consultant\n- Access emergency support\n- Connect with team lead');
+        }
+
+        function openKnowledgeBase() {
+            alert('📚 Knowledge Base\n\nThis would open:\n- Searchable documentation\n- Common solutions\n- Best practices\n- Video tutorials\n- FAQs');
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

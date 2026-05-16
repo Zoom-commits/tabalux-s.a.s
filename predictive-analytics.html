@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabalux S.A.S - Predictive Analytics</title>
+    <script src="auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .nav-menu {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        .nav-menu a:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-menu a.active {
+            background: #0f2027;
+            color: white;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #0f2027;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .alert-banner {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .alert-banner h3 {
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .ml-models-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .ml-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+        }
+
+        .ml-card h3 {
+            color: #0f2027;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .ml-metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .ml-metric:last-child {
+            border-bottom: none;
+        }
+
+        .ml-metric label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .ml-metric .value {
+            color: #0f2027;
+            font-weight: bold;
+        }
+
+        .accuracy-high { color: #10b981 !important; }
+        .accuracy-medium { color: #f59e0b !important; }
+        .accuracy-low { color: #ef4444 !important; }
+
+        .prediction-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .prediction-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prediction-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+        }
+
+        .prediction-card.critical::before { background: #ef4444; }
+        .prediction-card.warning::before { background: #f59e0b; }
+        .prediction-card.success::before { background: #10b981; }
+
+        .prediction-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .prediction-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .prediction-label {
+            color: #666;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .prediction-trend {
+            font-size: 0.9em;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-card h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 3px solid #0f2027;
+            padding-bottom: 10px;
+        }
+
+        .scenario-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .scenario-container h3 {
+            color: #0f2027;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .scenario-box {
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .scenario-box.best {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+
+        .scenario-box.current {
+            background: #fef3c7;
+            border-color: #f59e0b;
+        }
+
+        .scenario-box.worst {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+
+        .scenario-box h4 {
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .scenario-metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 0.95em;
+        }
+
+        .recommendations {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .recommendations h3 {
+            color: #0f2027;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+
+        .recommendation-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            background: #f9fafb;
+            border-radius: 5px;
+        }
+
+        .recommendation-item h4 {
+            color: #0f2027;
+            margin-bottom: 8px;
+        }
+
+        .recommendation-item p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .priority-high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .priority-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        @media (max-width: 768px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .nav-menu {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-menu a {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-menu">
+        <span style="font-weight: bold; color: #0f2027;">📊 Dashboard Navigation:</span>
+        <a href="index.html">🏠 Home</a>
+        <a href="operational-view.html">Operational View</a>
+        <a href="executive-view.html">Executive View</a>
+        <a href="predictive-analytics.html" class="active">Predictive Analytics</a>
+        <a href="consultant-portal.html">Consultant Portal</a>
+        <a href="#" onclick="logout()" style="margin-left: auto; background: #ef4444; color: white;">🚪 Logout</a>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Tabalux S.A.S - Predictive Analytics</h1>
+            <p>Proyecciones con Machine Learning e Inteligencia Artificial</p>
+        </div>
+
+        <div class="alert-banner">
+            <h3>⚠️ Predictive Alert</h3>
+            <p>Without corrective actions, ticket volume is projected to increase by 35% in the next 3 months, potentially exceeding team capacity and increasing costs by $48,000.</p>
+        </div>
+
+        <!-- ML Models Performance -->
+        <div class="ml-models-container">
+            <div class="ml-card">
+                <h3>🧠 Random Forest Classifier</h3>
+                <div class="ml-metric">
+                    <label>Accuracy:</label>
+                    <span class="value accuracy-high">94.2%</span>
+                </div>
+                <div class="ml-metric">
+                    <label>Precision:</label>
+                    <span class="value accuracy-high">92.8%</span>
+                </div>
+                <div class="ml-metric">
+                    <label>Recall:</label>
+                    <span class="value accuracy-high">93.5%</span>
+                </div>
+                <div class="ml-metric">
+                    <label>F1-Score:</label>
+                    <span class="value accuracy-high">93.1%</span>
+                </div>
+                <div class="ml-metric">
+                    <label>Error Margin:</label>
+                    <span class="value accuracy-high">±5.8%</span>
+                </div>
+                <div class="ml-metric">
+                    <label>Use Case:</label>
+                    <span class="value">Ticket Priority Classification</span>
+                </div>
+            </div>
+
+            <div class="ml-card">
+                <h3>📈 LSTM Neural Network</h3>
+                <div class="ml-metric">
+                    <label>Accuracy:</label>
+                    <span class="value accuracy-high">91.7%</span>
+                </div>
+                <div class="ml-metric">
+                    <label>MAE:</label>
+                    <span class="value accuracy-medium">3.2 tickets</span>
+                </div>
+                <div class="ml-metric">
+                    <label>RMSE:</label>
+                    <span class="value accuracy-medium">4.8 tickets</span>
+                </div>
+                <div class="ml-metric">
+                    <label>R² Score:</label>
+                    <span class="value accuracy-high">0.89</span>
+                </div>
+                <div class="ml-metric">
+                    <label>Error Margin:</label>
+                    <span class="value accuracy-medium">±8.3%</span>
+                </div>
+                <div class="ml-metric">
+                    <label>Use Case:</label>
+                    <span class="value">Volume Time Series Forecasting</span>
+                </div>
+            </div>
+
+            <div class="ml-card">
+                <h3>🎯 Gradient Boosting</h3>
+                <div class="ml-metric">
+                    <label>Accuracy:</label>
+                    <span class="value accuracy-high">89.4%</span>
+                </div>
+                <div class="ml-metric">
+                    <label>Precision:</label>
+                    <span class="value accuracy-medium">87.6%</span>
+                </div>
+                <div class="ml-metric">
+                    <label>Recall:</label>
+                    <span class="value accuracy-medium">88.9%</span>
+                </div>
+                <div class="ml-metric">
+                    <label>F1-Score:</label>
+                    <span class="value accuracy-medium">88.2%</span>
+                </div>
+                <div class="ml-metric">
+                    <label>Error Margin:</label>
+                    <span class="value accuracy-medium">±10.6%</span>
+                </div>
+                <div class="ml-metric">
+                    <label>Use Case:</label>
+                    <span class="value">Resolution Time Prediction</span>
+                </div>
+            </div>
+
+            <div class="ml-card">
+                <h3>🔮 Prophet (Facebook)</h3>
+                <div class="ml-metric">
+                    <label>MAPE:</label>
+                    <span class="value accuracy-high">7.2%</span>
+                </div>
+                <div class="ml-metric">
+                    <label>MAE:</label>
+                    <span class="value accuracy-high">$8,450</span>
+                </div>
+                <div class="ml-metric">
+                    <label>Coverage:</label>
+                    <span class="value accuracy-high">95%</span>
+                </div>
+                <div class="ml-metric">
+                    <label>Trend Strength:</label>
+                    <span class="value accuracy-high">0.82</span>
+                </div>
+                <div class="ml-metric">
+                    <label>Error Margin:</label>
+                    <span class="value accuracy-high">±7.2%</span>
+                </div>
+                <div class="ml-metric">
+                    <label>Use Case:</label>
+                    <span class="value">Cost Forecasting</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Predictions -->
+        <div class="prediction-cards">
+            <div class="prediction-card critical">
+                <div class="prediction-icon">📊</div>
+                <div class="prediction-label">Projected Ticket Volume (90 days)</div>
+                <div class="prediction-value" style="color: #ef4444;">485</div>
+                <div class="prediction-trend" style="background: #fee2e2; color: #991b1b;">↑ 35% increase</div>
+            </div>
+
+            <div class="prediction-card warning">
+                <div class="prediction-icon">💰</div>
+                <div class="prediction-label">Projected Cost Impact</div>
+                <div class="prediction-value" style="color: #f59e0b;">$175,500</div>
+                <div class="prediction-trend" style="background: #fef3c7; color: #92400e;">↑ $48K over budget</div>
+            </div>
+
+            <div class="prediction-card critical">
+                <div class="prediction-icon">⏱️</div>
+                <div class="prediction-label">Avg. Resolution Time (projected)</div>
+                <div class="prediction-value" style="color: #ef4444;">6.8 hrs</div>
+                <div class="prediction-trend" style="background: #fee2e2; color: #991b1b;">↑ 62% slower</div>
+            </div>
+
+            <div class="prediction-card warning">
+                <div class="prediction-icon">⚠️</div>
+                <div class="prediction-label">Critical Tickets (projected)</div>
+                <div class="prediction-value" style="color: #f59e0b;">28</div>
+                <div class="prediction-trend" style="background: #fef3c7; color: #92400e;">↑ 180% increase</div>
+            </div>
+
+            <div class="prediction-card critical">
+                <div class="prediction-icon">📉</div>
+                <div class="prediction-label">SLA Compliance (projected)</div>
+                <div class="prediction-value" style="color: #ef4444;">78%</div>
+                <div class="prediction-trend" style="background: #fee2e2; color: #991b1b;">↓ 16% below target</div>
+            </div>
+
+            <div class="prediction-card warning">
+                <div class="prediction-icon">👥</div>
+                <div class="prediction-label">Team Utilization (projected)</div>
+                <div class="prediction-value" style="color: #f59e0b;">98%</div>
+                <div class="prediction-trend" style="background: #fef3c7; color: #92400e;">↑ Near capacity</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-container">
+            <div class="chart-card full-width">
+                <h3>📈 Ticket Volume Forecast - LSTM Model (90-day projection)</h3>
+                <canvas id="volumeForecastChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3>💸 Cost Projection - Prophet Model</h3>
+                <canvas id="costProjectionChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3>⏱️ Resolution Time Prediction - Gradient Boosting</h3>
+                <canvas id="resolutionPredictionChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3>🎯 Priority Distribution Forecast - Random Forest</h3>
+                <canvas id="priorityForecastChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3>📊 Model Accuracy Comparison</h3>
+                <canvas id="modelAccuracyChart"></canvas>
+            </div>
+
+            <div class="chart-card full-width">
+                <h3>🔄 Confidence Intervals - Prediction Uncertainty</h3>
+                <canvas id="confidenceIntervalChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Scenario Analysis -->
+        <div class="scenario-container">
+            <h3>🎭 Scenario Analysis - 90 Day Projections</h3>
+            <div class="scenario-grid">
+                <div class="scenario-box best">
+                    <h4>✅ Best Case Scenario</h4>
+                    <p style="margin-bottom: 15px; color: #065f46;"><strong>With immediate corrective actions</strong></p>
+                    <div class="scenario-metric">
+                        <span>Ticket Volume:</span>
+                        <strong>320 tickets</strong>
+                    </div>
+                    <div class="scenario-metric">
+                        <span>Total Cost:</span>
+                        <strong>$115,000</strong>
+                    </div>
+                    <div class="scenario-metric">
+                        <span>Avg. Resolution:</span>
+                        <strong>3.5 hours</strong>
+                    </div>
+                    <div class="scenario-metric">
+                        <span>SLA Compliance:</span>
+                        <strong>97%</strong>
+                    </div>
+                    <div class="scenario-metric">
+                        <span>Team Utilization:</span>
+                        <strong>75%</strong>
+                    </div>
+                </div>
+
+                <div class="scenario-box current">
+                    <h4>⚠️ Current Trajectory</h4>
+                    <p style="margin-bottom: 15px; color: #92400e;"><strong>Without intervention</strong></p>
+                    <div class="scenario-metric">
+                        <span>Ticket Volume:</span>
+                        <strong>485 tickets</strong>
+                    </div>
+                    <div class="scenario-metric">
+                        <span>Total Cost:</span>
+                        <strong>$175,500</strong>
+                    </div>
+                    <div class="scenario-metric">
+                        <span>Avg. Resolution:</span>
+                        <strong>6.8 hours</strong>
+                    </div>
+                    <div class="scenario-metric">
+                        <span>SLA Compliance:</span>
+                        <strong>78%</strong>
+                    </div>
+                    <div class="scenario-metric">
+                        <span>Team Utilization:</span>
+                        <strong>98%</strong>
+                    </div>
+                </div>
+
+                <div class="scenario-box worst">
+                    <h4>❌ Worst Case Scenario</h4>
+                    <p style="margin-bottom: 15px; color: #991b1b;"><strong>With additional complications</strong></p>
+                    <div class="scenario-metric">
+                        <span>Ticket Volume:</span>
+                        <strong>620 tickets</strong>
+                    </div>
+                    <div class="scenario-metric">
+                        <span>Total Cost:</span>
+                        <strong>$225,000</strong>
+                    </div>
+                    <div class="scenario-metric">
+                        <span>Avg. Resolution:</span>
+                        <strong>9.2 hours</strong>
+                    </div>
+                    <div class="scenario-metric">
+                        <span>SLA Compliance:</span>
+                        <strong>62%</strong>
+                    </div>
+                    <div class="scenario-metric">
+                        <span>Team Utilization:</span>
+                        <strong>125% (overload)</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Recommendations -->
+        <div class="recommendations">
+            <h3>💡 AI-Powered Recommendations</h3>
+            
+            <div class="recommendation-item">
+                <h4>1. Increase Team Capacity <span class="priority-badge priority-high">HIGH PRIORITY</span></h4>
+                <p><strong>Action:</strong> Add 2 additional support engineers within 30 days to handle projected 35% volume increase.</p>
+                <p><strong>Expected Impact:</strong> Reduce resolution time by 40%, maintain SLA compliance above 95%, prevent cost overrun of $48,000.</p>
+                <p><strong>ML Confidence:</strong> 92.4% (Random Forest model)</p>
+            </div>
+
+            <div class="recommendation-item">
+                <h4>2. Implement Automated Triage System <span class="priority-badge priority-high">HIGH PRIORITY</span></h4>
+                <p><strong>Action:</strong> Deploy ML-based ticket classification to automatically prioritize and route tickets.</p>
+                <p><strong>Expected Impact:</strong> Reduce manual triage time by 60%, improve first-contact resolution by 25%.</p>
+                <p><strong>ML Confidence:</strong> 94.2% (Random Forest accuracy)</p>
+            </div>
+
+            <div class="recommendation-item">
+                <h4>3. Proactive Monitoring Enhancement <span class="priority-badge priority-medium">MEDIUM PRIORITY</span></h4>
+                <p><strong>Action:</strong> Implement predictive monitoring to identify issues before they generate tickets.</p>
+                <p><strong>Expected Impact:</strong> Prevent 30% of projected tickets, save approximately $52,500 in support costs.</p>
+                <p><strong>ML Confidence:</strong> 89.4% (Gradient Boosting model)</p>
+            </div>
+
+            <div class="recommendation-item">
+                <h4>4. Knowledge Base Optimization <span class="priority-badge priority-medium">MEDIUM PRIORITY</span></h4>
+                <p><strong>Action:</strong> Use NLP to identify common issues and create targeted documentation.</p>
+                <p><strong>Expected Impact:</strong> Increase self-service resolution by 35%, reduce ticket volume by 15%.</p>
+                <p><strong>ML Confidence:</strong> 87.8% (NLP analysis)</p>
+            </div>
+
+            <div class="recommendation-item">
+                <h4>5. Training Program for High-Risk Areas <span class="priority-badge priority-medium">MEDIUM PRIORITY</span></h4>
+                <p><strong>Action:</strong> Focus training on modules with highest predicted failure rates (Payment Gateway, ERP Integration).</p>
+                <p><strong>Expected Impact:</strong> Reduce critical tickets by 45%, improve team efficiency by 18%.</p>
+                <p><strong>ML Confidence:</strong> 91.7% (LSTM prediction)</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chartConfig = {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: { size: 12 }
+                    }
+                }
+            }
+        };
+
+        // Volume Forecast Chart
+        new Chart(document.getElementById('volumeForecastChart'), {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8', 'Week 9', 'Week 10', 'Week 11', 'Week 12'],
+                datasets: [{
+                    label: 'Historical Data',
+                    data: [45, 52, 48, 55, 58, 62, null, null, null, null, null, null],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 5
+                }, {
+                    label: 'Predicted (LSTM)',
+                    data: [null, null, null, null, null, 62, 68, 72, 78, 82, 88, 95],
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 5,
+                    borderDash: [5, 5]
+                }, {
+                    label: 'Upper Bound (+8.3%)',
+                    data: [null, null, null, null, null, 67, 74, 78, 84, 89, 95, 103],
+                    borderColor: '#fca5a5',
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 0,
+                    borderDash: [2, 2]
+                }, {
+                    label: 'Lower Bound (-8.3%)',
+                    data: [null, null, null, null, null, 57, 62, 66, 72, 75, 81, 87],
+                    borderColor: '#fca5a5',
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 0,
+                    borderDash: [2, 2]
+                }]
+            },
+            options: {
+                ...chartConfig,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Tickets'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Cost Projection Chart
+        new Chart(document.getElementById('costProjectionChart'), {
+            type: 'line',
+            data: {
+                labels: ['Month 1', 'Month 2', 'Month 3'],
+                datasets: [{
+                    label: 'Current Trajectory',
+                    data: [127500, 148000, 175500],
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 6
+                }, {
+                    label: 'With Corrective Actions',
+                    data: [127500, 122000, 115000],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 6
+                }, {
+                    label: 'Budget Limit',
+                    data: [150000, 150000, 150000],
+                    borderColor: '#f59e0b',
+                    borderDash: [5, 5],
+                    tension: 0,
+                    fill: false,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                ...chartConfig,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Resolution Time Prediction
+        new Chart(document.getElementById('resolutionPredictionChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Current', 'Week 4', 'Week 8', 'Week 12'],
+                datasets: [{
+                    label: 'Predicted Avg. Resolution Time (hours)',
+                    data: [4.2, 5.1, 6.0, 6.8],
+                    backgroundColor: ['#3b82f6', '#f59e0b', '#f59e0b', '#ef4444'],
+                    borderWidth: 1
+                }, {
+                    label: 'Target (4 hours)',
+                    data: [4, 4, 4, 4],
+                    type: 'line',
+                    borderColor: '#10b981',
+                    borderDash: [5, 5],
+                    fill: false,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                ...chartConfig,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Hours'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Priority Distribution Forecast
+        new Chart(document.getElementById('priorityForecastChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Critical (Predicted)', 'High (Predicted)', 'Medium (Predicted)', 'Low (Predicted)'],
+                datasets: [{
+                    data: [28, 145, 218, 94],
+                    backgroundColor: ['#991b1b', '#ef4444', '#f59e0b', '#10b981'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: chartConfig
+        });
+
+        // Model Accuracy Comparison
+        new Chart(document.getElementById('modelAccuracyChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Random Forest', 'LSTM', 'Gradient Boosting', 'Prophet'],
+                datasets: [{
+                    label: 'Accuracy (%)',
+                    data: [94.2, 91.7, 89.4, 92.8],
+                    backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                ...chartConfig,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Accuracy %'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Confidence Interval Chart
+        new Chart(document.getElementById('confidenceIntervalChart'), {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'],
+                datasets: [{
+                    label: 'Prediction',
+                    data: [62, 68, 72, 78, 82, 88, 95, 102],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 6
+                }, {
+                    label: '95% Confidence Upper',
+                    data: [70, 77, 82, 89, 94, 101, 109, 117],
+                    borderColor: '#93c5fd',
+                    tension: 0.4,
+                    fill: '+1',
+                    pointRadius: 0,
+                    borderDash: [2, 2]
+                }, {
+                    label: '95% Confidence Lower',
+                    data: [54, 59, 62, 67, 70, 75, 81, 87],
+                    borderColor: '#93c5fd',
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 0,
+                    borderDash: [2, 2]
+                }]
+            },
+            options: {
+                ...chartConfig,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Ticket Volume'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+        function logout() {
+            localStorage.removeItem("currentUser");
+            window.location.href = "index.html";
+        }
+</html>
